@@ -14,9 +14,12 @@ public class Interpreter {
     double direction;
 
     Graphics gc;
-
+    
     HashMap<String, Node> procedures;
 
+    /**
+     * Couleurs
+     */
     Color colors[] = {
         Color.BLACK,
         Color.BLUE,
@@ -32,45 +35,62 @@ public class Interpreter {
         Color.WHITE,
         Color.YELLOW
     };
+    
+    /**
+     * tableau de transition
+     */
 	static Integer transitions[][] = {
-			//             espace lettre chiffre   [    ]    avance    Gauche    Droite    Repeat   	    autre
-			/*  0 */    {      0,     1,      2,  101, 102,    103,      104,      105,      106,      107,     null      },
-			/*  1 */    {    101,     1,      1, 201, 201, 201, 201, 201, 201, 201,     null      },
-			/*  2 */    {    202,   202,      2, 202, 202, 201, 201, 201, 201, 201,     null      },
-			/*  3 */    {    203,   203,    203, 204, 203, 201, 201, 201, 201, 201,     null      },
-			/*  4 */    {    205,   205,    205, 206, 205, 201, 201, 201, 201, 201,     null      },
-			/*  5 */    {    207,   207,    207, 208, 207, 201, 201, 201, 201, 201,     null      },
-			/*  6 */    {    209,   209,    209, 210, 209, 201, 201, 201, 201, 201,     null      },
+			 //             espace lettre chiffre   [     ]         autre
+			/*  0 */    {      0,     1,      2,  101,  102,         null      },
+			/*  1 */    {    201,     1,      1,  201,  201,          null      },
+			/*  2 */    {    202,   202,      2,  202,  202,         null      },			
+			
 
-			// 101 accepte                        														   (goBack : non)
-			// 102 accepte Avance la tortue de n pixels   													   (goBack : oui)
-			// 103 accepte Tourne la tortue de n degres vers la gauche                                         (goBack : oui)
-			// 104 accepte Tourne la tortue de n degres vers la droite                                         (goBack : oui)
-			// 105 accepte Change la couleur du tracé, n étant une val numérique de 0 à 12, 
-			//             à faire correspondre aux couleurs prédéfinies dans la classe java.awt.Color         (goBack : non)
-			// 106 accepte Défini une rocédure nommé ident, dont les instructions se trouvent entre crochets   (goBack : oui)
-			// 107 accepte call ident Si une procédure nommée ideent a été au préalable
-			// 			   défini, appelle cette procédure (càd exécute les instructions de cette procedure).  (goBack : non)
+			// 101 accepte [                        (goBack : non)
+			// 102 accepte ]                        (goBack : non)                     
+                       
+		
+			// 201 accepte identifiant ou mot clé   (goBack : oui)
+			// 202 accepte entier                   (goBack : oui)
 
 
 	};
 
 	static final int ETAT_INITIAL = 0;
 
+	/**
+	 * Retourne l'indice de chaque symbole en rapport avec
+	 * le tableau de transition au dessus
+	 * @param c
+	 * @return int
+	 */
 	private int indiceSymbole(Character c) {
-		if (c == null) return 0;
-		if (Character.isWhitespace(c)) return 0;
-		if (Character.isLetter(c)) return 1;
-		if (Character.isDigit(c)) return 2;
-		if (c == '[') return 3;
-		if (c == ']') return 4;
-		return 5;
+		
+		try {
+			if (c == null) return 0;
+			if (Character.isWhitespace(c)) return 0;
+			if (Character.isLetter(c)) return 1;
+			if (Character.isDigit(c)) return 2;
+			if (c == '[') return 3;
+			if (c == ']') return 4;
+			else
+				return 5;
+		} catch(ArrayIndexOutOfBoundsException e) {
+			System.out.println("Désolé, le symbole n'est pas dans l'alphabet...");
+		}
+		return -1;
 	}
-
+	
+	/**
+	 * permet d'attribuer des Tokens aux différents éléments lus
+	 * @param sr
+	 * @return
+	 */
 	public ArrayList<Node> lexer(SourceReader sr) {
 		ArrayList<Node> Nodes = new ArrayList<Node>();
 		String buf="";
 		int etat = ETAT_INITIAL;
+		
 		while (true) {
 			Character c = sr.lectureSymbole();
 			Integer e = transitions[etat][indiceSymbole(c)];
@@ -80,30 +100,25 @@ public class Interpreter {
 			}
 			if (e >= 100) {
 				if (e == 101) {
-					System.out.println("Accepte forward");
-					Nodes.add(new Node(NodeClass.nForward));
+					System.out.println("Accepte [");
+					Nodes.add(new Node(NodeClass.nRight, "["));
 				} else if (e == 102) {
-					System.out.println("Accepte la définition de la procédure ident  " + buf);
-					Nodes.add(new Node(NodeClass.nProc, buf));
+					System.out.println("Accepte ]");
+					Nodes.add(new Node(NodeClass.nLeft, "]"));
 					sr.goBack();
 				} else if (e == 103) {
-					System.out.println("Accepte la procédure appelé " + buf);
-					Nodes.add(new Node(NodeClass.nCall, buf));
+					System.out.println("Accepte la définition de la procédure ident  " + buf);
+					
+					if(buf.contains("repeat") == true) Nodes.add(new Node(NodeClass.nRepeat, buf));
+					else if(buf.contains("forward") == true) Nodes.add(new Node(NodeClass.nForward, buf));
+					else if(buf.contains("right") == true) Nodes.add(new Node(NodeClass.nRight, buf));
+					else if(buf.contains("left") == true) Nodes.add(new Node(NodeClass.nLeft, buf));
+					
 					sr.goBack();
-				} else if (e == 104) {
-					System.out.println("Accepte left");
-					Nodes.add(new Node(NodeClass.nLeft));
+				} else if (e == 202) {
+					System.out.println("Accepte intVal " + buf);
+					Nodes.add(new Node(NodeClass.nBlock, buf));
 					sr.goBack();
-				} else if (e == 105) {
-					System.out.println("Accepte right");
-					Nodes.add(new Node(NodeClass.nRight));
-				} else if (e == 106) {
-					System.out.println("Accepte repeat");
-					Nodes.add(new Node(NodeClass.nRepeat));
-					sr.goBack();
-				} else if (e == 107) {
-					System.out.println("Accepte digit");
-					Nodes.add(new Node(NodeClass.nColor));
 				}
 				etat = 0;
 				buf = "";
@@ -116,6 +131,14 @@ public class Interpreter {
 		return Nodes;
 	}
 	
+	/**
+	 * 
+	 * @param s
+	 * @param x
+	 * @param y
+	 * @param gc
+	 * @throws Exception
+	 */
     void interpreter(String s, double x, double y, Graphics gc) throws Exception {
         System.out.println();
         this.gc = gc;
@@ -133,7 +156,11 @@ public class Interpreter {
         printAst(root, 0);
         evalRoot(root);
     }
-
+    
+    /**
+     * 
+     * @param root
+     */
     void evalRoot(Node root) {
         Iterator<Node> it = root.getChildren();
         
@@ -149,6 +176,10 @@ public class Interpreter {
         }
     }
 
+    /**
+     * 
+     * @param n
+     */
     void eval(Node n) {
         Iterator<Node> it = n.getChildren();
         
@@ -178,6 +209,10 @@ public class Interpreter {
         }
     }
 
+    /**
+     * 
+     * @param length
+     */
     void forward(double length) {
         double destX = x + Math.sin(direction*Math.PI*2/360) * length;
         double destY = y + Math.cos(direction*Math.PI*2/360) * length;
@@ -186,6 +221,11 @@ public class Interpreter {
         y = destY;
     }
 
+    /**
+     * 
+     * @param n
+     * @param depth
+     */
     static void printAst(Node n, int depth) {
         StringBuilder s = new StringBuilder();
         for(int i=0;i<depth;i++) s.append("  ");
@@ -197,6 +237,10 @@ public class Interpreter {
         }
     }
 
+    /**
+     * 
+     * @return
+     */
     static Node exampleAst() {
         Node root = new Node(NodeClass.nBlock);
 
