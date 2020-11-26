@@ -13,9 +13,8 @@ public class Main {
     // police de caractère de la zone de saisie
     final String fontName = "verdana";
     final int fontSize = 16;
-
-    /*
-    final String example =
+    
+    final String example1 =
         "color 1\n" +
         "forward 20\n" +
         "right 90\n" +
@@ -32,8 +31,8 @@ public class Main {
         "  forward 15\n" +
         "  left 90\n" +
         "]\n";
-    */
-
+    
+    
     final static String example =
         "procedure p1 [\n" +
         "    forward 10\n" +
@@ -62,7 +61,7 @@ public class Main {
         "    right 36\n" +
         "    call p2\n" +
         "]\n";
-
+    
     BufferedImage image;
 
     public static void main(String[] args) {
@@ -136,7 +135,7 @@ public class Main {
 
         // Fenêtre principale
 
-        JFrame frame = new JFrame("Démo projet TLA 20-21");
+        JFrame frame = new JFrame("Projet Turtle");
         frame.setPreferredSize(new Dimension(width, height));
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 
