@@ -5,12 +5,19 @@ public class SourceReader {
 	private String contenu;
 	private int index=0;
 
+	/**
+	 * Constructeur 
+	 * @param contenu
+	 */
 	public SourceReader(String contenu) {
+		super();
 		this.contenu = contenu;
 	}
 
-	/*
-	 * Renvoie un caractère ou null si fin de fichier
+	/**
+	 * Parcours la chaine de caractèr pour lire chaque caractère puis
+	 * renvoie un caractère ou null si fin de fichier
+	 * @return char
 	 */
 	public Character lectureSymbole() {
 		if (index >= contenu.length()) return null;
@@ -19,6 +26,9 @@ public class SourceReader {
 		return c;
 	}
 
+	/**
+	 * retourne en arrière 
+	 */
 	public void goBack() {
 		if (index == 0) {
 			System.out.println("Appel de goBack interdit");

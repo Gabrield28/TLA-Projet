@@ -1,8 +1,13 @@
 package ex;
 
 import javax.swing.*;
+
 import java.awt.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.awt.image.BufferedImage;
+import java.util.ArrayList;
+import java.util.Scanner;
 
 public class Main {
 
@@ -14,6 +19,7 @@ public class Main {
     final String fontName = "verdana";
     final int fontSize = 16;
     
+    /*
     final String example1 =
         "color 1\n" +
         "forward 20\n" +
@@ -31,7 +37,7 @@ public class Main {
         "  forward 15\n" +
         "  left 90\n" +
         "]\n";
-    
+    */
     
     final static String example =
         "procedure p1 [\n" +
@@ -73,12 +79,43 @@ public class Main {
         }
 
         SwingUtilities.invokeLater(() -> (new Main()).initSwingGui());
+    
+		boolean prog = true;
+		while(prog = true) {
+			System.out.println("Veuillez saisir votre mot (ou appuyez sur entrer pour finir) : ");
+			Scanner sc = new Scanner(System.in);
+			String mot = sc.nextLine();
+			Interpreter a = new Interpreter();
+			
+			
+			if(mot.length()==0) {
+				prog = false;
+				System.out.println("Fin du programme");
+				break;
+			}else {
+				test(mot);
+			}		
+		}
+	}
+
+    private static void test(String entree) {
+		System.out.println();
+		SourceReader sr = new SourceReader(entree);
+		AnalyseSyntaxique a = new AnalyseSyntaxique();
+		ArrayList<Node> Nodes = a.lexer(sr);
+		
+		for(Node t: Nodes) {
+			System.out.println(t);
+		}
+		System.out.println("----------------------------------------------");
     }
+	
 
     private void initSwingGui() {
 
         // mainPanel
-
+    	String text = null;
+    	
         JPanel mainPanel = new JPanel(new GridLayout(1, 2, 0, 0));
 
         JTextArea textArea = new JTextArea(example);
@@ -126,6 +163,7 @@ public class Main {
             msgLabel.setText("");
             try {
                 (new Interpreter()).interpreter(textArea.getText(), d.width / 2, d.height / 2, g);
+                System.out.println(textArea.getText());
                 drawPanel.repaint();
                 msgLabel.setText("ok");
             } catch (Exception ex) {
@@ -147,4 +185,5 @@ public class Main {
         frame.setVisible(true);
 
     }
+    
 }
