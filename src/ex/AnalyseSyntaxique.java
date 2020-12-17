@@ -2,101 +2,180 @@ package ex;
 
 import java.util.ArrayList;
 
+
 public class AnalyseSyntaxique {
 
-	/**
-     * tableau de transition
-     */
-	static Integer transitions[][] = {
-			 //             espace lettre chiffre   [     ]         autre
-			/*  0 */    {      0,     1,      2,  101,  102,         null      },
-			/*  1 */    {    201,     1,      1,  201,  201,          null      },
-			/*  2 */    {    202,   202,      2,  202,  202,         null      },			
-			
-
-			// 101 accepte [                        (goBack : non)
-			// 102 accepte ]                        (goBack : non)                     
-                       
-		
-			// 201 accepte identifiant ou mot clé   (goBack : oui)
-			// 202 accepte entier                   (goBack : oui)
-
-
-	};
-
-	static final int ETAT_INITIAL = 0;
+	private int pos;
+	private int profondeur;
+	private ArrayList<Token> Tokens;
 
 	/**
-	 * Retourne l'indice de chaque symbole en rapport avec
-	 * le tableau de transition au dessus
-	 * @param c
-	 * @return int
+	 * @param Tokens
+	 * @throws Exception
 	 */
-	private int indiceSymbole(Character c) {
+	public Node parser(ArrayList<Token> Tokens) throws Exception {
+		this.Tokens = Tokens;
+		pos = 0;
+		Node expr = S();
 		
-		try {
-			if (c == null) return 0;
-			if (Character.isWhitespace(c)) return 0;
-			if (Character.isLetter(c)) return 1;
-			if (Character.isDigit(c)) return 2;
-			if (c == '[') return 3;
-			if (c == ']') return 4;
-			else
-				return 5;
-		} catch(ArrayIndexOutOfBoundsException e) {
-			System.out.println("Désolé, le symbole n'est pas dans l'alphabet...");
-		}
-		return -1;
+		System.out.println("Fin atteinte = " + (pos == Tokens.size()));
+		return expr;
 	}
-	
+
+    
 	/**
-	 * permet d'attribuer des Tokens aux différents éléments lus
-	 * @param sr
+	 * Méthode des symboles non terminaux
+	 * @return 
+	 * @throws Exception
+	 */
+	private Node S() throws Exception {
+
+		if (getTokenClass() == TokenClass.repeat) {
+
+			// production S -> repeat S"S
+
+			Token ident = getToken();
+
+			printToken(ident.getValue()); // affiche la valeur int
+			S_second();
+			profondeur--;
+			S();
+
+			return null;
+		}
+
+		if (getTokenClass() == TokenClass.right || getTokenClass() == TokenClass.left
+				|| getTokenClass() == TokenClass.forward) {
+
+			// production S -> AS
+
+			profondeur++;
+			A();
+			profondeur--;
+			S();
+
+			return null;
+		}
+		return null;
+
+	}
+
+	private Node S_second() throws Exception {
+
+		if (getTokenClass() == TokenClass.intVal) {
+
+			// production S" -> intVal S'
+
+			Token tokIntVal = getToken();
+
+			printToken(tokIntVal.getValue()); // affiche la valeur int
+			//S_prime();
+			return null;
+		}
+
+		throw new Exception("intVal ou [ attendu");
+
+	}
+
+	private Node S_prime() throws Exception {
+
+		if (getTokenClass() == TokenClass.leftHook) {
+
+			// production S' -> [SS]
+
+			getToken();
+			printToken("[");
+
+			profondeur++;
+			S();
+
+			profondeur--;
+			S();
+
+			if (getTokenClass() == TokenClass.rightHook) {
+				getToken();
+				printToken("]");
+				S();
+				return null;
+			}
+
+			throw new Exception("[ attendu");
+
+		}
+
+		throw new Exception(" ] attendu");
+	}
+
+	private Node A() throws Exception {
+
+		if (getTokenClass() == TokenClass.right || getTokenClass() == TokenClass.left
+				|| getTokenClass() == TokenClass.forward || getTokenClass() == TokenClass.color) {
+
+			// production A -> left n ou right n ou forward n ou color n
+
+			printToken(getToken().getValue());
+			
+			if (getTokenClass() == TokenClass.intVal) {
+
+
+
+				Token tokIntVal = getToken();
+				printToken(tokIntVal.getValue()); // affiche la valeur n
+
+				return null;
+			}
+			throw new Exception("entier attendu");
+			
+		}else {
+			throw new Exception("right, left or forward attendu");
+		}
+		
+	}
+
+	/*
+	 * --------- autres méthodes ---------- 
+	 */
+
+	/**
+	 * END OF FILE
 	 * @return
 	 */
-	public ArrayList<Node> lexer(SourceReader sr) {
-		ArrayList<Node> Nodes = new ArrayList<Node>();
-		String buf="";
-		int etat = ETAT_INITIAL;
-		
-		while (true) {
-			Character c = sr.lectureSymbole();
-			Integer e = transitions[etat][indiceSymbole(c)];
-			if (e == null) {
-				System.out.println(" pas de transition depuis état " + etat + " avec symbole " + c);
-				return new ArrayList<Node>(); // renvoie une liste vide
-			}
-			if (e >= 100) {
-				if (e == 101) {
-					System.out.println("Accepte [");
-					Nodes.add(new Node(NodeClass.nProc, "["));
-				} else if (e == 102) {
-					System.out.println("Accepte ]");
-					Nodes.add(new Node(NodeClass.nProc, "]"));
-					sr.goBack();
-				} else if (e == 103) {
-					System.out.println("Accepte la définition de la procédure ident  " + buf);
-					
-					if(buf.contains("repeat") == true) Nodes.add(new Node(NodeClass.nRepeat, buf));
-					else if(buf.contains("forward") == true) Nodes.add(new Node(NodeClass.nForward, buf));
-					else if(buf.contains("right") == true) Nodes.add(new Node(NodeClass.nRight, buf));
-					else if(buf.contains("left") == true) Nodes.add(new Node(NodeClass.nLeft, buf));
-					else if(buf.contains("color") == true) Nodes.add(new Node(NodeClass.nColor, buf));
-					
-					sr.goBack();
-				} else if (e == 202) {
-					System.out.println("Accepte intVal " + buf);
-					Nodes.add(new Node(NodeClass.nBlock, buf));
-					sr.goBack();
-				}
-				etat = 0;
-				buf = "";
-			} else {
-				etat = e;
-				if (etat>0) buf = buf + c;
-			}
-			if (c==null) break;
-		}
-		return Nodes;
+	private boolean isEOF() {
+		return pos >= Tokens.size();
 	}
+
+	/*
+	 * Retourne la classe du prochain Token à lire SANS AVANCER au Token suivant
+	 */
+	private TokenClass getTokenClass() {
+		if (pos >= Tokens.size()) {
+			return null;
+		} else {
+			return Tokens.get(pos).getCl();
+		}
+	}
+
+	/*
+	 * Retourne le prochain Token à lire ET AVANCE au Token suivant
+	 */
+	private Token getToken() {
+		if (pos >= Tokens.size()) {
+			return null;
+		} else {
+			Token current = Tokens.get(pos);
+			pos++;
+			return current;
+		}
+	}
+
+	/**
+	 * @param s
+	 */
+	private void printToken(String s) {
+		for (int i = 0; i < profondeur; i++) {
+			System.out.print("    ");
+		}
+		System.out.println(s);
+	}
+
 }

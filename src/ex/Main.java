@@ -69,7 +69,7 @@ public class Main {
         "]\n";
     
     BufferedImage image;
-
+/**
     public static void main(String[] args) {
 
         try {
@@ -114,8 +114,7 @@ public class Main {
     private void initSwingGui() {
 
         // mainPanel
-    	String text = null;
-    	
+
         JPanel mainPanel = new JPanel(new GridLayout(1, 2, 0, 0));
 
         JTextArea textArea = new JTextArea(example);
@@ -163,7 +162,6 @@ public class Main {
             msgLabel.setText("");
             try {
                 (new Interpreter()).interpreter(textArea.getText(), d.width / 2, d.height / 2, g);
-                System.out.println(textArea.getText());
                 drawPanel.repaint();
                 msgLabel.setText("ok");
             } catch (Exception ex) {
@@ -173,7 +171,7 @@ public class Main {
 
         // Fenêtre principale
 
-        JFrame frame = new JFrame("Projet Turtle");
+        JFrame frame = new JFrame("Démo projet TLA 20-21");
         frame.setPreferredSize(new Dimension(width, height));
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 
@@ -185,5 +183,5 @@ public class Main {
         frame.setVisible(true);
 
     }
-    
+    **/
 }
