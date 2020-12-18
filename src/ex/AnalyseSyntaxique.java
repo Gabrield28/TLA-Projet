@@ -7,18 +7,18 @@ public class AnalyseSyntaxique {
 
 	private int pos;
 	private int profondeur;
-	private ArrayList<Token> Tokens;
+	private ArrayList<Token> tokens;
 
 	/**
-	 * @param Tokens
+	 * @param tokens
 	 * @throws Exception
 	 */
-	public Node parser(ArrayList<Token> Tokens) throws Exception {
-		this.Tokens = Tokens;
+	public Node parser(ArrayList<Token> tokens) throws Exception {
+		this.tokens = tokens;
 		pos = 0;
 		Node expr = S();
 		
-		System.out.println("Fin atteinte = " + (pos == Tokens.size()));
+		System.out.println("Fin atteinte = " + (pos == tokens.size()));
 		return expr;
 	}
 
@@ -35,13 +35,18 @@ public class AnalyseSyntaxique {
 			// production S -> repeat S"S
 
 			Token ident = getToken();
-
+			printNode("repeat ");
 			printToken(ident.getValue()); // affiche la valeur int
-			S_second();
+			
+			Node n1 = S_second();
 			profondeur--;
-			S();
-
-			return null;
+			Node n2 = S();
+			if(n2 != null) {
+				n2.prependNode(n1);
+				return n2;
+			}else {
+				return n1;
+			}
 		}
 
 		if (getTokenClass() == TokenClass.right || getTokenClass() == TokenClass.left
@@ -50,13 +55,19 @@ public class AnalyseSyntaxique {
 			// production S -> AS
 
 			profondeur++;
-			A();
+			Node n3 = A();
 			profondeur--;
-			S();
+			Node n4 = S();
 
+			
+		}
+		
+		if(isEOF()) {
+			// production S -> epsilon
 			return null;
 		}
-		return null;
+		throw new Exception("repeat, forward, left, right ou rien était attendu.");
+
 
 	}
 
@@ -69,7 +80,7 @@ public class AnalyseSyntaxique {
 			Token tokIntVal = getToken();
 
 			printToken(tokIntVal.getValue()); // affiche la valeur int
-			//S_prime();
+			Node n1 = S_prime();
 			return null;
 		}
 
@@ -81,22 +92,22 @@ public class AnalyseSyntaxique {
 
 		if (getTokenClass() == TokenClass.leftHook) {
 
-			// production S' -> [SS]
+			// production S' -> [S]
 
 			getToken();
 			printToken("[");
-
+ 
 			profondeur++;
-			S();
+			Node n1 = S();
 
 			profondeur--;
-			S();
+			
 
 			if (getTokenClass() == TokenClass.rightHook) {
 				getToken();
 				printToken("]");
-				S();
-				return null;
+				Node n2 = S();
+				return n2;
 			}
 
 			throw new Exception("[ attendu");
@@ -116,9 +127,6 @@ public class AnalyseSyntaxique {
 			printToken(getToken().getValue());
 			
 			if (getTokenClass() == TokenClass.intVal) {
-
-
-
 				Token tokIntVal = getToken();
 				printToken(tokIntVal.getValue()); // affiche la valeur n
 
@@ -127,7 +135,7 @@ public class AnalyseSyntaxique {
 			throw new Exception("entier attendu");
 			
 		}else {
-			throw new Exception("right, left or forward attendu");
+			throw new Exception("right, left, forward ou color attendu");
 		}
 		
 	}
@@ -141,17 +149,17 @@ public class AnalyseSyntaxique {
 	 * @return
 	 */
 	private boolean isEOF() {
-		return pos >= Tokens.size();
+		return pos >= tokens.size();
 	}
 
 	/*
 	 * Retourne la classe du prochain Token à lire SANS AVANCER au Token suivant
 	 */
 	private TokenClass getTokenClass() {
-		if (pos >= Tokens.size()) {
+		if (pos >= tokens.size()) {
 			return null;
 		} else {
-			return Tokens.get(pos).getCl();
+			return tokens.get(pos).getCl();
 		}
 	}
 
@@ -159,10 +167,10 @@ public class AnalyseSyntaxique {
 	 * Retourne le prochain Token à lire ET AVANCE au Token suivant
 	 */
 	private Token getToken() {
-		if (pos >= Tokens.size()) {
+		if (pos >= tokens.size()) {
 			return null;
 		} else {
-			Token current = Tokens.get(pos);
+			Token current = tokens.get(pos);
 			pos++;
 			return current;
 		}
@@ -177,5 +185,11 @@ public class AnalyseSyntaxique {
 		}
 		System.out.println(s);
 	}
-
+	
+    private void printNode(String s) {
+        for(int i=0;i<profondeur;i++) {
+            System.out.print("    ");
+        }
+        System.out.println(s);
+    }
 }
