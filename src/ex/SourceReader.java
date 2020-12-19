@@ -15,7 +15,7 @@ public class SourceReader {
 	}
 
 	/**
-	 * Parcours la chaine de caractèr pour lire chaque caractère puis
+	 * Parcours la chaine de caractère pour lire chaque caractère puis
 	 * renvoie un caractère ou null si fin de fichier
 	 * @return char
 	 */

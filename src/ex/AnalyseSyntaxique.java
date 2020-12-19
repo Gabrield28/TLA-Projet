@@ -22,7 +22,7 @@ public class AnalyseSyntaxique {
 		return expr;
 	}
 
-    
+    /**
 	/**
 	 * Méthode des symboles non terminaux
 	 * @return 
@@ -34,19 +34,17 @@ public class AnalyseSyntaxique {
 
 			// production S -> repeat S"S
 
-			Token ident = getToken();
-			printNode("repeat ");
-			printToken(ident.getValue()); // affiche la valeur int
 			
-			Node n1 = S_second();
+			Token tokRepeat = getToken();
+			printNode("repeat");  //affiche repeat
+			profondeur++;
+			Node n1 = new Node(tokRepeat);
+			n1.appendNode(S_second());
 			profondeur--;
-			Node n2 = S();
-			if(n2 != null) {
-				n2.prependNode(n1);
-				return n2;
-			}else {
-				return n1;
-			}
+			Node n2 = S_second();
+			Node n3 = S();
+			n2.appendNode(n3);
+			
 		}
 
 		if (getTokenClass() == TokenClass.right || getTokenClass() == TokenClass.left
@@ -55,18 +53,26 @@ public class AnalyseSyntaxique {
 			// production S -> AS
 
 			profondeur++;
-			Node n3 = A();
+			Node n1 = A();
 			profondeur--;
-			Node n4 = S();
-
+			Node n2 = S();
+			if(n2 != null) {
+				n2.prependNode(n1);
+				return n2;
+			}else {
+				return n1;
+			}
 			
 		}
 		
-		if(isEOF()) {
+		if(isEOF() == true ) { //|| getTokenClass() == TokenClass.rightHook
+			
 			// production S -> epsilon
+			System.out.println("end of file");
 			return null;
 		}
-		throw new Exception("repeat, forward, left, right ou rien était attendu.");
+		throw new Exception("repeat, forward, left, right ou epsilon était attendu.");
+		
 
 
 	}
@@ -78,10 +84,14 @@ public class AnalyseSyntaxique {
 			// production S" -> intVal S'
 
 			Token tokIntVal = getToken();
-
-			printToken(tokIntVal.getValue()); // affiche la valeur int
-			Node n1 = S_prime();
-			return null;
+			printNode(tokIntVal.getValue());  //affiche la valeur du token intVal
+			profondeur++;
+			Node n1 = new Node(tokIntVal);
+			n1.appendNode(S_prime());
+			Node n2 = S_prime();
+			n2.prependNode(n1);
+			
+			
 		}
 
 		throw new Exception("intVal ou [ attendu");
@@ -94,27 +104,47 @@ public class AnalyseSyntaxique {
 
 			// production S' -> [S]
 
-			getToken();
-			printToken("[");
+			Token lHook = getToken();
+			printNode("[");
+            profondeur++;
+            Node n1 = new Node(lHook);
+            n1.appendNode(S());
+            Node n2 = S();
+            profondeur--;
+			
+            if(getTokenClass() == TokenClass.rightHook) {
+				Token rHook = getToken();
+				printNode("[");
+	            profondeur++;
+	            Node n3 = new Node(lHook);
+	            n2.appendNode(n3);
+			} throw new Exception("] attendu");
+			
+			
+		/**
+			Token rHook = getToken();
+			printNode("[");
  
 			profondeur++;
-			Node n1 = S();
-
+			Node n1 = new Node(rHook);
+			n1.appendNode(S());
+			Node n2 = S();
 			profondeur--;
+			//Node n3 = S();
+			//n2.appendNode(n3);
 			
-
 			if (getTokenClass() == TokenClass.rightHook) {
+			
 				getToken();
 				printToken("]");
-				Node n2 = S();
-				return n2;
-			}
+				Node n4 = S();
+				return n4;
+			
+			}throw new Exception(" ] attendu");
+**/
+		}throw new Exception(" [ attendu");
 
-			throw new Exception("[ attendu");
-
-		}
-
-		throw new Exception(" ] attendu");
+		
 	}
 
 	private Node A() throws Exception {
@@ -175,6 +205,7 @@ public class AnalyseSyntaxique {
 			return current;
 		}
 	}
+	
 
 	/**
 	 * @param s

@@ -1,13 +1,8 @@
 package ex;
 
 import javax.swing.*;
-
 import java.awt.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.awt.image.BufferedImage;
-import java.util.ArrayList;
-import java.util.Scanner;
 
 public class Main {
 
@@ -18,9 +13,9 @@ public class Main {
     // police de caractère de la zone de saisie
     final String fontName = "verdana";
     final int fontSize = 16;
-    
+
     /*
-    final String example1 =
+    final String example =
         "color 1\n" +
         "forward 20\n" +
         "right 90\n" +
@@ -37,8 +32,8 @@ public class Main {
         "  forward 15\n" +
         "  left 90\n" +
         "]\n";
-    */
     
+
     final static String example =
         "procedure p1 [\n" +
         "    forward 10\n" +
@@ -67,9 +62,12 @@ public class Main {
         "    right 36\n" +
         "    call p2\n" +
         "]\n";
+*/
+    final static String example = " repeat 50 [left 10";
+    
     
     BufferedImage image;
-/**
+
     public static void main(String[] args) {
 
         try {
@@ -79,37 +77,7 @@ public class Main {
         }
 
         SwingUtilities.invokeLater(() -> (new Main()).initSwingGui());
-    
-		boolean prog = true;
-		while(prog = true) {
-			System.out.println("Veuillez saisir votre mot (ou appuyez sur entrer pour finir) : ");
-			Scanner sc = new Scanner(System.in);
-			String mot = sc.nextLine();
-			Interpreter a = new Interpreter();
-			
-			
-			if(mot.length()==0) {
-				prog = false;
-				System.out.println("Fin du programme");
-				break;
-			}else {
-				test(mot);
-			}		
-		}
-	}
-
-    private static void test(String entree) {
-		System.out.println();
-		SourceReader sr = new SourceReader(entree);
-		AnalyseSyntaxique a = new AnalyseSyntaxique();
-		ArrayList<Node> Nodes = a.lexer(sr);
-		
-		for(Node t: Nodes) {
-			System.out.println(t);
-		}
-		System.out.println("----------------------------------------------");
     }
-	
 
     private void initSwingGui() {
 
@@ -183,5 +151,4 @@ public class Main {
         frame.setVisible(true);
 
     }
-    **/
 }

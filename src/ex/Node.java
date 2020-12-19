@@ -7,6 +7,7 @@ import java.util.List;
 public class Node {
     private List<Node> children = new ArrayList<Node>();
     private NodeClass cl;
+    private Token t;
     private String value;
     
     /**
@@ -25,6 +26,14 @@ public class Node {
     Node(NodeClass cl, String value) {
         this.cl = cl;
         this.value = value;
+    }
+    
+    /**
+     * Constructeur 1
+     * @param cl
+     */
+    Node(Token t) {
+        this.t = t;
     }
     
     /**
@@ -89,4 +98,8 @@ public class Node {
         if (value != null) s = s + ", " + value;
         return s + ">";
     }
+
+	public Token getT() {
+		return t;
+	}
 }

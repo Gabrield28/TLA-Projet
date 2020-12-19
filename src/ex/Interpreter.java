@@ -4,9 +4,7 @@ import java.awt.*;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
-/**
-import analyseLexicale.Token;
- **/
+
 public class Interpreter {
 
 	final double initDirection = 180;
@@ -14,11 +12,12 @@ public class Interpreter {
 	double x;
 	double y;
 	double direction;
+	Color color;
 
 	Graphics gc;
 
 	HashMap<String, Node> procedures;
-	private ArrayList<Node> nodes;
+	private ArrayList<Token> tokens;
 
 	/**
 	 * Couleurs
@@ -42,7 +41,7 @@ public class Interpreter {
 
 
 	/**
-	 * 
+	 * Constructeur interpreter
 	 * @param s
 	 * @param x
 	 * @param y
@@ -50,12 +49,16 @@ public class Interpreter {
 	 * @throws Exception
 	 */
 	void interpreter(String s, double x, double y, Graphics gc) throws Exception {
-
+		System.out.println("---------------------");
 		SourceReader sr = new SourceReader(s);
-		nodes = new Lexer().lexer(sr);
-
-
+		tokens = new Lexer().lexer(sr);
 		//lancer parser
+
+		try {
+			new AnalyseSyntaxique().parser(tokens);
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
 
 		System.out.println();
 		this.gc = gc;
@@ -72,26 +75,24 @@ public class Interpreter {
 		// A FAIRE : remplacer par l'implémentation d'une analyse syntaxique descendante
 
 		//Node root = exampleAst();
-		//Node root = exampleAst();
 
-		System.out.println("Arbre syntaxique abstrait :");
+
+		
 		int loop = 0;
 
-		/**
+
 		if (findRepeat()) {
 			getRepeat();
 
 		}
-		**/
-		while (loop != nodes.size()) {
+
+		while (loop != tokens.size()) {
 
 			eval(null);
 
 			loop++;
 
 		}
-		//printAst(root, 0);
-		//evalRoot(root);
 	}
 
 	/**
@@ -117,29 +118,48 @@ public class Interpreter {
 	 * 
 	 * @param n
 	 */
-	void eval(Node n) {
+	public void eval(Node n) {
 		Iterator<Node> it = n.getChildren();
 
 		switch (n.getCl()) {
+
 		case nBlock:
 			while (it.hasNext()) {
 				eval(it.next());
 			}
 			break;
+
 		case nForward:
 			forward(Integer.valueOf(n.getValue()));
 			break;
+
 		case nLeft:
 			direction = (direction + Integer.valueOf(n.getValue())) % 360;
 			break;
+
 		case nRight:
 			direction = (direction - Integer.valueOf(n.getValue())) % 360;
+
 			break;
+
 		case nRepeat:
 			int count = Integer.valueOf(n.getValue());
 			Node nodeToRepeat = it.next();
 			for (int i = 0; i < count; i++) {
 				eval(nodeToRepeat);
+			}
+			break;
+
+		case nCall:
+
+			break;
+
+		case nColor:
+			int col = Integer.valueOf(n.getValue());
+			if (col > 0 && col < 12) {
+				color = colors[col];
+			}else {
+				System.out.println("Cette couleur n'existe pas ! ");
 			}
 			break;
 			// A FAIRE : implémenter l'interprétation des noeuds nCall et nColor
@@ -159,7 +179,7 @@ public class Interpreter {
 	}
 
 	/**
-	 * 
+	 * Cette méthode permet d'afficher l'AST
 	 * @param n
 	 * @param depth
 	 */
@@ -175,8 +195,8 @@ public class Interpreter {
 	}
 
 	/**
-	 * 
-	 * @return
+	 * Exemple
+	 * @return Node
 	 */
 	static Node exampleAst() {
 		Node root = new Node(NodeClass.nBlock);
@@ -202,5 +222,123 @@ public class Interpreter {
 		root.appendNode(n21);
 
 		return root;
+	}
+
+	/**
+	 * Permet de retouner true si le token repeat existe dans la liste
+	 * 
+	 * @return boolean
+	 */
+	private boolean findRepeat() {
+		for (Token t : tokens) {
+			if (t.getCl() == TokenClass.repeat)
+				return true;
+		}
+		return false;
+	}
+
+	/**
+	 * permet de trier la liste pour traiter les repeat, en outre on recupère
+	 * un repeat on sauvegarde sa valeur et on enregistre autant de fois ses valeurs
+	 * entre les crochets
+	 * 
+	 */
+	private void getRepeat() {
+		Token token_tampon;
+		int position_debut = 0;
+		int position_fin = tokens.size();
+		int valeur_repeat = 0;
+		int compteur_leftHook = 0;
+
+		/**
+		 * la premiere contient les tokens avant le repeat, 
+		 * la deuxieme  contient les tokens entre les crochets du repeat autant de 
+		 * fois que la valeur du repeat et,
+		 *  la troisieme contient les tokens 
+		 * apres le crochet fermant du repeat puis je rassemble la liste
+            a la fin on a une liste sans repeat sans chrochets
+		 */
+
+		ArrayList<Token> liste1 = new ArrayList();
+		ArrayList<Token> liste2 = new ArrayList();
+		ArrayList<Token> liste3 = new ArrayList();
+
+		token_tampon = tokens.get(position_debut);
+
+		while (token_tampon.getCl() != TokenClass.leftHook) {
+			if (token_tampon.getCl() == TokenClass.repeat) {
+				position_debut++;
+			}
+			position_debut++;
+			token_tampon = tokens.get(position_debut);
+		}
+		position_debut++;
+
+		position_fin = position_debut;
+
+		token_tampon = tokens.get(position_fin);
+
+		while (token_tampon.getCl() != TokenClass.rightHook || compteur_leftHook != 0) {
+			if (token_tampon.getCl() == TokenClass.leftHook) {
+				compteur_leftHook++;
+			}
+			if (token_tampon.getCl() == TokenClass.rightHook) {
+				compteur_leftHook--;
+			}
+			position_fin++;
+			token_tampon = tokens.get(position_fin);
+		}
+		position_fin++;
+
+		addToken(position_debut, position_fin, liste1, liste2, liste3);
+
+		fusion(liste1, liste2, liste3);
+
+		if (findRepeat())
+			getRepeat();
+		;
+	}
+
+	/**
+	 * Permet d'ajouter les tokens dans les listes au moment du trie
+	 * 
+	 * @param position_debut
+	 * @param position_fin
+	 * @param liste1
+	 * @param liste2
+	 * @param liste3
+	 */
+	private void addToken(int position_debut, int position_fin, ArrayList<Token> liste1, ArrayList<Token> liste2,
+			ArrayList<Token> liste3) {
+		int valeur_repeat;
+		for (int i = 0; i < (position_debut - 3); i++) {
+			liste1.add(tokens.get(i));
+		}
+
+		for (int i = (position_fin); i < tokens.size(); i++) {
+			liste3.add(tokens.get(i));
+		}
+
+		valeur_repeat = Integer.parseInt(tokens.get(position_debut - 2).getValue());
+		for (int i = 1; i <= valeur_repeat; i++) {
+			for (int j = (position_debut); j < (position_fin - 1); j++) {
+				liste2.add(tokens.get(j));
+			}
+		}
+	}
+
+	/**
+	 * Permet de fusionner les trois listes triers pour mettre à jour la liste
+	 * principale des tokens
+	 * 
+	 * @param liste1
+	 * @param liste2
+	 * @param liste3
+	 */
+	private void fusion(ArrayList<Token> liste1, ArrayList<Token> liste2, ArrayList<Token> liste3) {
+		tokens = new ArrayList();
+		tokens.addAll(liste1);
+		tokens.addAll(liste2);
+		tokens.addAll(liste3);
 	}
 }
