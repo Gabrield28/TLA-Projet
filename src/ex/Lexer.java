@@ -14,7 +14,7 @@ public class Lexer {
 	static Integer transitions[][] = {
 			 //             espace lettre chiffre   [     ]         autre
 			/*  0 */    {      0,     1,      2,  101,  102,         null      },
-			/*  1 */    {    201,     1,      1,  201,  201,          null      },
+			/*  1 */    {    201,     1,      1,  201,  201,         null      },
 			/*  2 */    {    202,   202,      2,  202,  202,         null      },			
 			
 
@@ -74,10 +74,11 @@ public class Lexer {
 				if (e == 101) {
 					System.out.println("Accepte [");
 					Tokens.add(new Token(TokenClass.leftHook, "["));
+					//sr.goBack();
 				} else if (e == 102) {
 					System.out.println("Accepte ]");
 					Tokens.add(new Token(TokenClass.rightHook, "]"));
-					//sr.goBack();
+					
 				} else if (e == 201) {
 					System.out.println("Accepte " + buf);
 					
