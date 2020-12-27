@@ -80,7 +80,7 @@ public class Lexer {
 					Tokens.add(new Token(TokenClass.rightHook, "]"));
 					
 				} else if (e == 201) {
-					System.out.println("Accepte " + buf);
+					System.out.println("Accepte ident " + buf);
 					
 					if(buf.contains("repeat") == true) Tokens.add(new Token(TokenClass.repeat, buf));
 					
@@ -92,6 +92,9 @@ public class Lexer {
 					
 					else if(buf.contains("color") == true) Tokens.add(new Token(TokenClass.color, buf));
 					
+					else if(buf.contains("procedure") == true) Tokens.add(new Token(TokenClass.procedure, buf));
+					
+					else Tokens.add(new Token(TokenClass.ident, buf));
 					e = 201;
 					
 					sr.goBack();

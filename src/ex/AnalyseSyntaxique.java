@@ -35,28 +35,51 @@ public class AnalyseSyntaxique {
 
 		if (getTokenClass() == TokenClass.repeat) {
 
-			// production S -> repeat S"S
+			// production S -> repeat intVal S'S
 
 			Token ident = getToken();
 			printNode("repeat"); // affiche la valeur int
-			
-			profondeur++;
-			
-			Node n = new Node(ident);
-			Node n1 = (S_second());
-			n.appendNode(n1);
-			
-			profondeur--;
-			
-			Node n2 = S();
-			
-			if(n2 != null) {
-				n2.prependNode(n1);
-				return n2;
-			}else {
-				return n1;
-			}
+
+			if (getTokenClass() == TokenClass.intVal) {
+
+				Token tokIntVal = getToken();
+				printNode(tokIntVal.getValue()); // affiche la valeur int
+				//profondeur++;
+				Node n = new Node(tokIntVal);
+				n.appendNode(S_prime());
+				Node n3 = S();
+				if(n3 != null) {
+					n3.prependNode(n);
+					return n3;
+				}else {
+					return n;
+				}
+			} throw new Exception("intVal est attendu");
 			//n1.appendNode(n2);
+		}
+		if(getTokenClass() == TokenClass.procedure) {
+			
+			// production S -> procedure ident S'S
+			
+			Token ident = getToken();
+			printNode("procedure");
+
+			if (getTokenClass() == TokenClass.ident) {
+
+				Token name = getToken();
+				printNode(name.getValue()); // affiche la valeur int
+				//profondeur++;
+				Node n = new Node(name);
+				n.appendNode(S_prime());
+				Node n3 = S();
+				if(n3 != null) {
+					n3.prependNode(n);
+					return n3;
+				}else {
+					return n;
+				}
+			} throw new Exception("un nom de procédure est attendu");
+
 		}
 
 		if (getTokenClass() == TokenClass.right || getTokenClass() == TokenClass.left
@@ -70,57 +93,37 @@ public class AnalyseSyntaxique {
 			profondeur--;
 			Node n2 = S();
 			//System.out.println("n2 : S() lancée");
-			
+
 			if(n2 != null) {
-				
+
 				n2.prependNode(n1);
 				return n2;
 			}else {
 				return n1;
 			}
 		}
-		
-		if (isEOF() || getTokenClass() == TokenClass.intVal || getTokenClass() == TokenClass.leftHook || getTokenClass() == TokenClass.rightHook) {
+
+		if (isEOF() || getTokenClass() == TokenClass.intVal || getTokenClass() == TokenClass.rightHook) {
 			// production S -> epsilon
 			return null;
 		}
-		throw new Exception("repeat, left, right, forward ou color est attendu");
+		
+		throw new Exception("repeat, procedure, left, right, forward ou color est attendu");
 
 	}
 
-	private Node S_second() throws Exception {
-
-		if (getTokenClass() == TokenClass.intVal) {
-
-			// production S" -> intVal S'
-
-			Token tokIntVal = getToken();
-			printNode(tokIntVal.getValue()); // affiche la valeur int
-			//profondeur++;
-			Node n = new Node(tokIntVal);
-			n.appendNode(S_prime());
-			//profondeur--
-			return n;
-		}
-
-		throw new Exception("intVal ou [ attendu");
-
-	}
 
 	private Node S_prime() throws Exception {
 
 		if (getTokenClass() == TokenClass.leftHook) {
 
-			// production S' -> [SS]
+			// production S' -> [S]
 
 			getToken();
 			printNode("[");
 
 			profondeur++;
 			Node n1 = S();
-
-			profondeur--;
-			Node n2 = S();
 
 			if (getTokenClass() == TokenClass.rightHook) {
 				getToken();
@@ -139,7 +142,7 @@ public class AnalyseSyntaxique {
 	private Node A() throws Exception {
 
 		if (getTokenClass() == TokenClass.right || getTokenClass() == TokenClass.left
-				|| getTokenClass() == TokenClass.forward) {
+				|| getTokenClass() == TokenClass.forward || getTokenClass() == TokenClass.color) {
 
 			// production A -> left intval ou right intval ou forward intval ou color intval
 			Token ident = getToken();
@@ -148,8 +151,8 @@ public class AnalyseSyntaxique {
 
 			if (getTokenClass() == TokenClass.intVal) {
 
-				
-				
+
+
 				Token tokIntVal = getToken();
 				printNode(tokIntVal.getValue()); // affiche la valeur int
 				Node n1 = new Node(tokIntVal);
@@ -193,7 +196,7 @@ public class AnalyseSyntaxique {
 			pos++;
 			return current;
 		}
-		
+
 	}
 
 	/**

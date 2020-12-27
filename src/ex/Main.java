@@ -15,23 +15,7 @@ public class Main {
     final int fontSize = 16;
 
     /*
-    final String example =
-        "color 1\n" +
-        "forward 20\n" +
-        "right 90\n" +
-        "forward 20\n" +
-        "color 5\n" +
-        "left 90\n" +
-        "forward 20\n" +
-        "right 90\n" +
-        "forward 20\n" +
-        "color 11\n" +
-        "forward 20\n" +
-        "color 8\n" +
-        "repeat 4 [\n" +
-        "  forward 15\n" +
-        "  left 90\n" +
-        "]\n";
+    
     
 
     final static String example =
@@ -62,14 +46,45 @@ public class Main {
         "    right 36\n" +
         "    call p2\n" +
         "]\n";
-*/
-    final static String example = " repeat 50 [left 10";
+
+    final static String example = " repeat 50 [left 10]";
+    
+    
+    final String example =
+        "color 1\n" +
+        "forward 20\n" +
+        "right 90\n" +
+        "forward 20\n" +
+        "color 5\n" +
+        "left 90\n" +
+        "forward 20\n" +
+        "right 90\n" +
+        "forward 20\n" +
+        "color 11\n" +
+        "forward 20\n" +
+        "color 8\n" +
+        "repeat 4 [\n" +
+        "  forward 15\n" +
+        "  left 90\n" +
+        "]\n";
+    */
+    
+    final static String example = "procedure p1 [right 10]";
     
     
     BufferedImage image;
 
     public static void main(String[] args) {
-
+    	System.out.println(" __________________________________________\r\n" + 
+				"/ ________	  _		     __	   \\\r\n" + 
+				"||___ ____|	 | |		    /  \\    |\r\n" + 
+				"|   | |		 | |		   / __ \\   |\r\n" + 
+				"|   | |		 | |		  / /__\\ \\  |\r\n" + 
+				"|   | |		 | |		 |  ____  | | \r\n" + 
+				"|   | |		 | |		 | |	| | |\r\n" + 
+				"|   | |		 | |______	 | |	| | |\r\n" + 
+				"|   |_|		 \\________|	 |_|	|_| |\r\n" + 
+				" \\__________________________________________/");
         try {
             UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
         } catch (Exception ex) {
@@ -105,7 +120,7 @@ public class Main {
         // bottomPanel
 
         JPanel bottomPanel = new JPanel(new GridBagLayout());
-        JButton btnRun = new JButton("run");
+        JButton btnRun = new JButton("lancer l'analyse");
         btnRun.setFont(new Font(fontName, Font.PLAIN, fontSize));
 
         bottomPanel.add(btnRun);
@@ -131,7 +146,7 @@ public class Main {
             try {
                 (new Interpreter()).interpreter(textArea.getText(), d.width / 2, d.height / 2, g);
                 drawPanel.repaint();
-                msgLabel.setText("ok");
+                msgLabel.setText("Code analysé");
             } catch (Exception ex) {
                 msgLabel.setText(ex.toString());
             }
@@ -139,7 +154,7 @@ public class Main {
 
         // Fenêtre principale
 
-        JFrame frame = new JFrame("Démo projet TLA 20-21");
+        JFrame frame = new JFrame("Projet TLA 20-21");
         frame.setPreferredSize(new Dimension(width, height));
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 
