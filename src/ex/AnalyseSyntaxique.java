@@ -16,7 +16,8 @@ public class AnalyseSyntaxique {
 	public Node parser(ArrayList<Token> tokens) throws Exception {
 		this.tokens = tokens;
 		pos = 0;
-		Node expr = S();
+		Node expr = new Node(NodeClass.nBlock);
+		expr.appendNode(S());
 		System.out.println("Fin atteinte = " + (pos == tokens.size()));
 		return expr;
 	}
@@ -38,50 +39,78 @@ public class AnalyseSyntaxique {
 			// production S -> repeat intVal S'S
 
 			Token ident = getToken();
-			printNode("repeat"); // affiche la valeur int
 
 			if (getTokenClass() == TokenClass.intVal) {
 
 				Token tokIntVal = getToken();
-				printNode(tokIntVal.getValue()); // affiche la valeur int
+				printNode(ident.getValue() + ", " + tokIntVal.getValue()); // affiche la valeur int
+				Node n = new Node(NodeClass.nRepeat, tokIntVal.getValue());
 				//profondeur++;
-				Node n = new Node(tokIntVal);
+				//Node n = new Node(tokIntVal);
 				n.appendNode(S_prime());
 				Node n3 = S();
-				if(n3 != null) {
+				if(n3 != null) { //retire le noeuds si ce dernier est null
 					n3.prependNode(n);
 					return n3;
 				}else {
 					return n;
 				}
-			} throw new Exception("intVal est attendu");
+			} throw new Exception("intVal est attendu après repeat");
 			//n1.appendNode(n2);
 		}
+		
+		
 		if(getTokenClass() == TokenClass.procedure) {
-			
-			// production S -> procedure ident S'S
-			
-			Token ident = getToken();
-			printNode("procedure");
+
+			// production S -> procedure name S'S
+
+			Token ident = getToken();			
 
 			if (getTokenClass() == TokenClass.ident) {
 
 				Token name = getToken();
-				printNode(name.getValue()); // affiche la valeur int
+				printNode(ident.getValue() + ", " + name.getValue());
+				Node n = new Node(NodeClass.nProc, name.getValue());
 				//profondeur++;
-				Node n = new Node(name);
 				n.appendNode(S_prime());
-				Node n3 = S();
-				if(n3 != null) {
-					n3.prependNode(n);
-					return n3;
+				Node n1 = S();
+				if(n1 != null) {
+					n1.prependNode(n);
+					return n1;
 				}else {
 					return n;
 				}
-			} throw new Exception("un nom de procédure est attendu");
+			} throw new Exception("un nom de procédure est attendu après procedure");
+
+		}
+		
+		
+		
+		if(getTokenClass() == TokenClass.call) {
+
+			// production S -> call name S
+
+			Token call = getToken();
+			
+			if (getTokenClass() == TokenClass.ident) {
+
+				Token name = getToken();
+				printNode(call.getValue() + ", " + name.getValue());
+				Node n = new Node(NodeClass.nCall, name.getValue());
+				//profondeur++;
+				n.appendNode(S());
+				if(S() != null) {
+					S().prependNode(n);
+					return S();
+				}else {
+					return n;
+				}
+			} throw new Exception("un nom de procédure déjà défini est attendu après call");
 
 		}
 
+		
+		
 		if (getTokenClass() == TokenClass.right || getTokenClass() == TokenClass.left
 				|| getTokenClass() == TokenClass.forward || getTokenClass() == TokenClass.color) {
 
@@ -90,12 +119,11 @@ public class AnalyseSyntaxique {
 			profondeur++;
 			Node n1 = A();
 			//System.out.println("n2 : S() pas lancée");
-			profondeur--;
+			//profondeur--;
 			Node n2 = S();
 			//System.out.println("n2 : S() lancée");
 
 			if(n2 != null) {
-
 				n2.prependNode(n1);
 				return n2;
 			}else {
@@ -107,7 +135,7 @@ public class AnalyseSyntaxique {
 			// production S -> epsilon
 			return null;
 		}
-		
+
 		throw new Exception("repeat, procedure, left, right, forward ou color est attendu");
 
 	}
@@ -119,15 +147,16 @@ public class AnalyseSyntaxique {
 
 			// production S' -> [S]
 
-			getToken();
-			printNode("[");
+			Token rHook = getToken();
+			printNode(rHook.getValue());
 
 			profondeur++;
 			Node n1 = S();
-
+			profondeur--;
 			if (getTokenClass() == TokenClass.rightHook) {
-				getToken();
-				printNode("]");
+				
+				Token lHook = getToken();
+				printNode(lHook.getValue());
 				Node n3 = S();
 				return n3;
 			}
@@ -141,24 +170,74 @@ public class AnalyseSyntaxique {
 
 	private Node A() throws Exception {
 
-		if (getTokenClass() == TokenClass.right || getTokenClass() == TokenClass.left
-				|| getTokenClass() == TokenClass.forward || getTokenClass() == TokenClass.color) {
+		if (getTokenClass() == TokenClass.right) {
 
-			// production A -> left intval ou right intval ou forward intval ou color intval
+			// production A -> right intval 
+			profondeur--;
 			Token ident = getToken();
-			printNode(ident.getValue()); // affiche le token forward, right, left ou color
-			Node n = new Node(ident);
+			//Node n = new Node(ident);
 
 			if (getTokenClass() == TokenClass.intVal) {
 
-
-
 				Token tokIntVal = getToken();
-				printNode(tokIntVal.getValue()); // affiche la valeur int
-				Node n1 = new Node(tokIntVal);
+				printNode(ident.getValue() + ", " + tokIntVal.getValue()); // affiche la valeur int		
+				Node n1 = new Node(NodeClass.nRight, tokIntVal.getValue());
 				return n1;
 			}
-			throw new Exception("int attendu");
+			throw new Exception("int attendu après right");
+
+		}
+		if (getTokenClass() == TokenClass.left) {
+
+			// production A -> left intval 
+			profondeur--;
+			Token ident = getToken();
+
+			//Node n = new Node(ident);
+
+			if (getTokenClass() == TokenClass.intVal) {
+
+				Token tokIntVal = getToken();
+				printNode(ident.getValue() + ", " + tokIntVal.getValue()); // affiche la valeur int		
+				Node n1 = new Node(NodeClass.nLeft, tokIntVal.getValue());
+				return n1;
+			}
+			throw new Exception("int attendu après left");
+
+		}
+		if (getTokenClass() == TokenClass.forward) {
+
+			// production A -> forward intval 
+			profondeur--;
+			Token ident = getToken();
+			
+			//Node n = new Node(ident);
+
+			if (getTokenClass() == TokenClass.intVal) {
+
+				Token tokIntVal = getToken();
+				printNode(ident.getValue() + ", " + tokIntVal.getValue()); // affiche la valeur int		
+				Node n1 = new Node(NodeClass.nForward, tokIntVal.getValue());
+				return n1;
+			}
+			throw new Exception("int attendu après forward");
+
+		}
+		if (getTokenClass() == TokenClass.color) {
+
+			// production A -> color intval
+			profondeur--;
+			Token ident = getToken();
+			//Node n = new Node(ident);
+
+			if (getTokenClass() == TokenClass.intVal) {
+
+				Token tokIntVal = getToken();
+				printNode(ident.getValue() + ", " + tokIntVal.getValue()); // affiche la valeur int		
+				Node n1 = new Node(NodeClass.nColor, tokIntVal.getValue());
+				return n1;
+			}
+			throw new Exception("int attendu après color");
 
 		}
 		throw new Exception("right, left, forward ou color attendu");

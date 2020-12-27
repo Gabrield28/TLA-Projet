@@ -69,7 +69,34 @@ public class Main {
         "]\n";
     */
     
-    final static String example = "procedure p1 [right 10]";
+     final static String example =
+            "procedure p1 [\n" +
+            "    forward 10\n" +
+            "    right 90\n" +
+            "]\n" +
+            "procedure p2 [\n" +
+            "    color 11\n" +
+            "    right 90\n" +
+            "    forward 15\n" +
+            "    color 1\n" +
+            "    repeat 4 [\n" +
+            "        call p1\n" +
+            "    ]\n" +
+            "    right 180\n" +
+            "    color 11\n" +
+            "    forward 15\n" +
+            "    right 90\n" +
+            "]\n" +
+            "color 11\n" +
+            "left 90\n" +
+            "forward 40\n" +
+            "right 90\n" +
+            "repeat 10 [\n" +
+            "    color 3\n" +
+            "    forward 40\n" +
+            "    right 36\n" +
+            "    call p2\n" +
+            "]\n";
     
     
     BufferedImage image;

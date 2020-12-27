@@ -37,39 +37,6 @@ public class Turtle{
 	}
 	
 	/**
-	 * Bouge la tortue vers l'avant par  'steps'
-	 * @param steps le nombre de steps
-	 */
-	public void forward(int steps) {
-		double targetX = x + Math.sin(this.direction*Math.PI*2/360) * steps;
-        double targetY = y + Math.cos(this.direction*Math.PI*2/360) * steps;
-     
-        this.draw(x, y, targetX, targetY);
-        
-        x = targetX;
-        y = targetY;
-	}
-	
-	/**
-	 * Bouge vers l'arrière par 'steps'
-	 * @param steps
-	 */
-	public void back(int steps) {
-		this.forward(-steps);
-	}
-	
-	/**
-	 * Déssine une ligne
-	 * @param x
-	 * @param y
-	 * @param targetX
-	 * @param targetY
-	 */
-	public void draw(final double x, final double y, final double targetX, final double targetY) {
-    	//this.graphics.drawline(x, y, targetX, targetY);
-    }
-	
-	/**
 	 * @return double
 	 */
 	public double getDirection() {

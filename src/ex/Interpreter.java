@@ -64,21 +64,26 @@ public class Interpreter {
 
 		try {
 			System.out.println("--------------------- Analyse Syntaxique ---------------------");
+			
 			new AnalyseSyntaxique().parser(tokens);
+			//Node root = parser();
+			//printAst(n, 0);
+			//evalRoot();
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
-
+		
+		/**
 		try {
 			System.out.println("--------------------- Arbre syntaxique abstrait ---------------------");
-			Node root = exampleAst();
-
+			Node root = AnalyseSyntaxique.parser(tokens);
+			
 	        System.out.println("Arbre syntaxique abstrait :");
 	        printAst(root, 0);
 	        evalRoot(root);
 		} catch (Exception e) {
 			e.printStackTrace();
-		}
+		}*/
 		
 
 		// récupère un exemple 'en dur' d'arbre syntaxique abstrait
@@ -86,6 +91,7 @@ public class Interpreter {
 
 		//Node root = exampleAst();
 	}
+
 
 	/**
 	 * 
@@ -143,7 +149,12 @@ public class Interpreter {
 			break;
 
 		case nCall:
-				
+
+			if(procedures.containsValue(it)) {
+				//execute la procédure
+			}else {
+				//ajoute la procedure a la hashmap
+			}
 			break;
 
 		case nColor:
@@ -159,8 +170,8 @@ public class Interpreter {
 	}
 
 	/**
-	 * 
-	 * @param length
+	 * Bouge la tortue vers l'avant par  'steps'
+	 * @param length le nombre de steps
 	 */
 	void forward(double length) {
 		double destX = x + Math.sin(direction*Math.PI*2/360) * length;
@@ -169,15 +180,24 @@ public class Interpreter {
 		x = destX;
 		y = destY;
 	}
+	/**
+	 * Bouge vers l'arrière par 'length'
+	 * @param length
+	 */
+	public void back(int steps) {
+		this.forward(-steps);
+	}
 
 	/**
 	 * Cette méthode permet d'afficher l'AST
 	 * @param n
-	 * @param depth
+	 * @param profondeur
 	 */
 	static void printAst(Node n, int profondeur) {
 		StringBuilder s = new StringBuilder();
-		for(int i=0;i<profondeur;i++) s.append("  ");
+		for(int i=0;i<profondeur;i++) {
+			s.append("  ");
+		}
 		s.append(n.toString());
 		System.out.println(s);
 		Iterator<Node> children = n.getChildren();
@@ -193,16 +213,16 @@ public class Interpreter {
 	static Node exampleAst() {
 		Node root = new Node(NodeClass.nBlock);
 
-		root.appendNode(new Node(NodeClass.nRight, "90"));
+		root.appendNode(new Node(NodeClass.nRight, "180"));
 
 		Node n1 = new Node(NodeClass.nBlock);
-		n1.appendNode(new Node(NodeClass.nForward, "40"));
-		n1.appendNode(new Node(NodeClass.nRight, "10"));
-		Node n11 = new Node(NodeClass.nRepeat, "3");
+		n1.appendNode(new Node(NodeClass.nForward, "5"));
+		n1.appendNode(new Node(NodeClass.nRight, "90"));
+		Node n11 = new Node(NodeClass.nRepeat, "2");
 		n11.appendNode(n1);
 		root.appendNode(n11);
 
-		root.appendNode(new Node(NodeClass.nForward, "50"));
+		root.appendNode(new Node(NodeClass.nForward, "10"));
 
 		// root.appendNode(new Node(NodeClass.nRight, "90"));
 

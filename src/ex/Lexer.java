@@ -94,6 +94,8 @@ public class Lexer {
 					
 					else if(buf.contains("procedure") == true) Tokens.add(new Token(TokenClass.procedure, buf));
 					
+					else if(buf.contains("call") == true) Tokens.add(new Token(TokenClass.call, buf));
+					
 					else Tokens.add(new Token(TokenClass.ident, buf));
 					e = 201;
 					
