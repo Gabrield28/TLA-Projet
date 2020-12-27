@@ -13,13 +13,12 @@ public class AnalyseSyntaxique {
 	 * @param tokens
 	 * @throws Exception
 	 */
-	public void parser(ArrayList<Token> tokens) throws Exception {
+	public Node parser(ArrayList<Token> tokens) throws Exception {
 		this.tokens = tokens;
 		pos = 0;
-		S();
-
+		Node expr = S();
 		System.out.println("Fin atteinte = " + (pos == tokens.size()));
-
+		return expr;
 	}
 
 	/*
@@ -29,57 +28,86 @@ public class AnalyseSyntaxique {
 	 */
 
 	/**
+	 * @return 
 	 * @throws Exception
 	 */
-	private void S() throws Exception {
+	private Node S() throws Exception {
 
 		if (getTokenClass() == TokenClass.repeat) {
 
 			// production S -> repeat S"S
 
 			Token ident = getToken();
-
-			printNode(ident.getValue()); // affiche la valeur int
-			S_second();
+			printNode("repeat"); // affiche la valeur int
+			
+			profondeur++;
+			
+			Node n = new Node(ident);
+			Node n1 = (S_second());
+			n.appendNode(n1);
+			
 			profondeur--;
-			S();
-
-			return;
+			
+			Node n2 = S();
+			
+			if(n2 != null) {
+				n2.prependNode(n1);
+				return n2;
+			}else {
+				return n1;
+			}
+			//n1.appendNode(n2);
 		}
 
 		if (getTokenClass() == TokenClass.right || getTokenClass() == TokenClass.left
-				|| getTokenClass() == TokenClass.forward) {
+				|| getTokenClass() == TokenClass.forward || getTokenClass() == TokenClass.color) {
 
 			// production S -> AS
 
 			profondeur++;
-			A();
+			Node n1 = A();
+			//System.out.println("n2 : S() pas lancée");
 			profondeur--;
-			S();
-
-			return;
+			Node n2 = S();
+			//System.out.println("n2 : S() lancée");
+			
+			if(n2 != null) {
+				
+				n2.prependNode(n1);
+				return n2;
+			}else {
+				return n1;
+			}
 		}
+		
+		if (isEOF() || getTokenClass() == TokenClass.intVal || getTokenClass() == TokenClass.leftHook || getTokenClass() == TokenClass.rightHook) {
+			// production S -> epsilon
+			return null;
+		}
+		throw new Exception("repeat, left, right, forward ou color est attendu");
 
 	}
 
-	private void S_second() throws Exception {
+	private Node S_second() throws Exception {
 
 		if (getTokenClass() == TokenClass.intVal) {
 
 			// production S" -> intVal S'
 
 			Token tokIntVal = getToken();
-
 			printNode(tokIntVal.getValue()); // affiche la valeur int
-			S_prime();
-			return;
+			//profondeur++;
+			Node n = new Node(tokIntVal);
+			n.appendNode(S_prime());
+			//profondeur--
+			return n;
 		}
 
 		throw new Exception("intVal ou [ attendu");
 
 	}
 
-	private void S_prime() throws Exception {
+	private Node S_prime() throws Exception {
 
 		if (getTokenClass() == TokenClass.leftHook) {
 
@@ -89,47 +117,48 @@ public class AnalyseSyntaxique {
 			printNode("[");
 
 			profondeur++;
-			S();
+			Node n1 = S();
 
 			profondeur--;
-			S();
+			Node n2 = S();
 
 			if (getTokenClass() == TokenClass.rightHook) {
 				getToken();
 				printNode("]");
-				S();
-				return;
+				Node n3 = S();
+				return n3;
 			}
 
 			throw new Exception("] attendu");
 
 		}
 
-		throw new Exception(" [ attendu");
+		throw new Exception("[ attendu");
 	}
 
-	private void A() throws Exception {
+	private Node A() throws Exception {
 
 		if (getTokenClass() == TokenClass.right || getTokenClass() == TokenClass.left
 				|| getTokenClass() == TokenClass.forward) {
 
-			// production A -> left intval ou right intval ou forward intval
-
-			printNode(getToken().getValue());
+			// production A -> left intval ou right intval ou forward intval ou color intval
+			Token ident = getToken();
+			printNode(ident.getValue()); // affiche le token forward, right, left ou color
+			Node n = new Node(ident);
 
 			if (getTokenClass() == TokenClass.intVal) {
 
 				
-
+				
 				Token tokIntVal = getToken();
 				printNode(tokIntVal.getValue()); // affiche la valeur int
-
-				return;
+				Node n1 = new Node(tokIntVal);
+				return n1;
 			}
 			throw new Exception("int attendu");
 
 		}
-		throw new Exception("right, left or forward attendu");
+		throw new Exception("right, left, forward ou color attendu");
 	}
 
 	/*

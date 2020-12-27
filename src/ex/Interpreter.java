@@ -49,12 +49,13 @@ public class Interpreter {
 	 * @throws Exception
 	 */
 	void interpreter(String s, double x, double y, Graphics gc) throws Exception {
-		System.out.println("---------------------");
+		System.out.println("--------------------- Analyse Lexicale ---------------------");
 		SourceReader sr = new SourceReader(s);
 		tokens = new Lexer().lexer(sr);
 		//lancer parser
 
 		try {
+			System.out.println("--------------------- Analyse Syntaxique ---------------------");
 			new AnalyseSyntaxique().parser(tokens);
 		} catch (Exception e) {
 			e.printStackTrace();
