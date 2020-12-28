@@ -148,7 +148,7 @@ public class AnalyseSyntaxique {
 			
 		}
 
-		if (isEOF() || getTokenClass() == TokenClass.intVal || getTokenClass() == TokenClass.rightHook) {
+		if (isEOL() || getTokenClass() == TokenClass.intVal || getTokenClass() == TokenClass.rightHook) {
 			// production S -> epsilon
 			return null;
 		}
@@ -174,8 +174,8 @@ public class AnalyseSyntaxique {
 				
 				Token lHook = getToken();
 				printNode(lHook.getValue());
-				Node n3 = S();
-				return n3;
+				//Node n3 = S();
+				return n1;
 			}
 
 			throw new Exception("] attendu");
@@ -266,7 +266,11 @@ public class AnalyseSyntaxique {
 	 * 
 	 */
 
-	static boolean isEOF() {
+	/**
+	 * return true si end of line apres un symbole
+	 * @return
+	 */
+	static boolean isEOL() { 
 		return pos >= tokens.size();
 	}
 

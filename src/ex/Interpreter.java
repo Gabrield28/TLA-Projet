@@ -76,7 +76,7 @@ public class Interpreter {
 			e.printStackTrace();
 		}
 		
-		
+		/**
 		try {
 			System.out.println("--------------------- Arbre syntaxique abstrait ---------------------");
 			Node root = exampleAst();
@@ -86,7 +86,7 @@ public class Interpreter {
 	        evalRoot(root);
 		} catch (Exception e) {
 			e.printStackTrace();
-		}
+		}*/
 		
 
 		// récupère un exemple 'en dur' d'arbre syntaxique abstrait
@@ -205,7 +205,7 @@ public class Interpreter {
 	/**
 	 * Exemple d'un AST
 	 * @return Node
-	 */
+	 
 	static Node exampleAst() {
 		Node root = new Node(NodeClass.nBlock);
 
@@ -231,5 +231,5 @@ public class Interpreter {
 
 		return root;
 
-	}
+	}*/
 }
