@@ -62,7 +62,11 @@ public class Node {
             this.children.add(it.next());
         }
     }
-
+    
+    /**
+     * 
+     * @return
+     */
     Iterator<Node> getChildren() {
         return this.children.iterator();
     }

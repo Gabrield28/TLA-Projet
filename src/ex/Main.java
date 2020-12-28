@@ -67,7 +67,7 @@ public class Main {
         "  forward 15\n" +
         "  left 90\n" +
         "]\n";
-    */
+    
     
      final static String example =
             "procedure p1 [\n" +
@@ -97,7 +97,24 @@ public class Main {
             "    right 36\n" +
             "    call p2\n" +
             "]\n";
-    
+    */
+    final String example =
+            "color 1\n" +
+            "forward 20\n" +
+            "right 90\n" +
+            "forward 20\n" +
+            "color 5\n" +
+            "left 90\n" +
+            "forward 20\n" +
+            "right 90\n" +
+            "forward 20\n" +
+            "color 11\n" +
+            "forward 20\n" +
+            "color 8\n" +
+            "repeat 4 [\n" +
+            "  forward 15\n" +
+            "  left 90\n" +
+            "]\n";
     
     BufferedImage image;
 

@@ -4,6 +4,7 @@ import java.awt.*;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.*;
 
 public class Interpreter {
 
@@ -65,25 +66,27 @@ public class Interpreter {
 		try {
 			System.out.println("--------------------- Analyse Syntaxique ---------------------");
 			
-			new AnalyseSyntaxique().parser(tokens);
-			//Node root = parser();
-			//printAst(n, 0);
-			//evalRoot();
+			//new AnalyseSyntaxique().parser(tokens);
+			Node root = AnalyseSyntaxique.parser(tokens);
+			
+			System.out.println("--------------------- Arbre Syntaxique Abstrait ---------------------");
+			printAst(root, 0);
+			evalRoot(root);
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
 		
-		/**
+		
 		try {
 			System.out.println("--------------------- Arbre syntaxique abstrait ---------------------");
-			Node root = AnalyseSyntaxique.parser(tokens);
+			Node root = exampleAst();
 			
 	        System.out.println("Arbre syntaxique abstrait :");
 	        printAst(root, 0);
 	        evalRoot(root);
 		} catch (Exception e) {
 			e.printStackTrace();
-		}*/
+		}
 		
 
 		// récupère un exemple 'en dur' d'arbre syntaxique abstrait
@@ -136,8 +139,8 @@ public class Interpreter {
 			break;
 
 		case nRight:
-			direction = (direction - Integer.valueOf(n.getValue())) % 360;
-
+			//right(Integer.valueOf(n.getValue()));
+			direction = (direction - Integer.valueOf(n.getValue())) % 360;			
 			break;
 
 		case nRepeat:
@@ -150,10 +153,10 @@ public class Interpreter {
 
 		case nCall:
 
-			if(procedures.containsValue(it)) {
-				//execute la procédure
+			if(procedures.containsValue(n.getValue())) {
+				//eval(procedures.values());
 			}else {
-				//ajoute la procedure a la hashmap
+				System.out.println("la procédure n'existe pas");
 			}
 			break;
 
@@ -180,14 +183,7 @@ public class Interpreter {
 		x = destX;
 		y = destY;
 	}
-	/**
-	 * Bouge vers l'arrière par 'length'
-	 * @param length
-	 */
-	public void back(int steps) {
-		this.forward(-steps);
-	}
-
+	
 	/**
 	 * Cette méthode permet d'afficher l'AST
 	 * @param n
@@ -224,7 +220,7 @@ public class Interpreter {
 
 		root.appendNode(new Node(NodeClass.nForward, "10"));
 
-		// root.appendNode(new Node(NodeClass.nRight, "90"));
+		root.appendNode(new Node(NodeClass.nRight, "90"));
 
 		Node n2 = new Node(NodeClass.nBlock);
 		n2.appendNode(new Node(NodeClass.nLeft, "90"));
