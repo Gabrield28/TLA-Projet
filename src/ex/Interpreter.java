@@ -5,6 +5,13 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.*;
+import analyseLexicale.Token;
+import analyseLexicale.TokenClass;
+import analyseLexicale.Lexer;
+import analyseLexicale.SourceReader;
+import analyseSyntaxique.AnalyseSyntaxique;
+import analyseSyntaxique.Node;
+import analyseSyntaxique.NodeClass;
 
 public class Interpreter {
 
@@ -21,7 +28,7 @@ public class Interpreter {
 	private ArrayList<Token> tokens;
 
 	/**
-	 * Couleurs
+	 * Tableau de 13 couleurs pour les couleurs
 	 */
 	Color colors[] = {
 			Color.BLACK,
@@ -42,7 +49,7 @@ public class Interpreter {
 
 
 	/**
-	 * Constructeur interpreter
+	 * Constructeur de la classe interpreter et lancement des analyses
 	 * @param s
 	 * @param x
 	 * @param y
@@ -51,53 +58,33 @@ public class Interpreter {
 	 */
 	void interpreter(String s, double x, double y, Graphics gc) throws Exception {
 		System.out.println();
-        this.gc = gc;
-        this.x = x;
-        this.y = y;
-        direction = initDirection;
-        procedures = new HashMap();
-		Turtle t = new Turtle(direction, x, y);
+		this.gc = gc;
+		this.x = x;
+		this.y = y;
+		direction = initDirection;
+		procedures = new HashMap();
 		
+
 		System.out.println("--------------------- Analyse Lexicale ---------------------");
 		SourceReader sr = new SourceReader(s);
 		tokens = new Lexer().lexer(sr);
-		//lancer parser
 
 		try {
-			System.out.println("--------------------- Analyse Syntaxique ---------------------");
-			
-			//new AnalyseSyntaxique().parser(tokens);
-			Node root = AnalyseSyntaxique.parser(tokens);
 			
 			System.out.println("--------------------- Arbre Syntaxique Abstrait ---------------------");
+			Node root = AnalyseSyntaxique.parser(tokens);
 			printAst(root, 0);
 			evalRoot(root);
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
-		
-		/**
-		try {
-			System.out.println("--------------------- Arbre syntaxique abstrait ---------------------");
-			Node root = exampleAst();
-			
-	        System.out.println("Arbre syntaxique abstrait :");
-	        printAst(root, 0);
-	        evalRoot(root);
-		} catch (Exception e) {
-			e.printStackTrace();
-		}*/
-		
 
-		// récupère un exemple 'en dur' d'arbre syntaxique abstrait
-		// A FAIRE : remplacer par l'implémentation d'une analyse syntaxique descendante
-
-		//Node root = exampleAst();
+		
 	}
 
 
 	/**
-	 * 
+	 * Méthode evalRoot
 	 * @param root
 	 */
 	void evalRoot(Node root) {
@@ -116,7 +103,7 @@ public class Interpreter {
 	}
 
 	/**
-	 * 
+	 * méthode eval prend en paramètre un Noeud (ceux liés dans l'analyse syntaxique)
 	 * @param n
 	 */
 	public void eval(Node n) {
@@ -139,7 +126,6 @@ public class Interpreter {
 			break;
 
 		case nRight:
-			//right(Integer.valueOf(n.getValue()));
 			direction = (direction - Integer.valueOf(n.getValue())) % 360;			
 			break;
 
@@ -151,30 +137,47 @@ public class Interpreter {
 			}
 			break;
 
-		case nCall:
+		case nProc:
+			procedures.put(n.getValue(), n);
+			break;
 
-			if(procedures.containsValue(n.getValue())) {
-				//eval(procedures.values());
+		/**
+		* Lorsque procedure ident est lancée, on stock dans un hashmap le nom (ident)
+		* de la procedure et les noeuds correspondant, puis lorsque call ident est appelé
+		* , on récupere les noeuds correspondant a l'ident dans la hashmap procedures 
+		*/
+		case nCall:
+			if(procedures.containsKey(n.getValue())) {
+
+				Iterator<Node> its = procedures.get(n.getValue()).getChildren();
+
+				Node nodeToRepeats = its.next();
+				eval(nodeToRepeats);
 			}else {
 				System.out.println("la procédure n'existe pas");
 			}
 			break;
 
+		/**
+		* On a un tableau de couleurs de 13 couleurs, on verifie donc que le numéro de la couleur saisie
+		* fait partie des couleurs disponible, sinon on affiche une erreur
+		*/
 		case nColor:
 			int col = Integer.valueOf(n.getValue());
-			if (col > 0 && col < 12) {
+			if (col >= 0 && col < 14) {
 				color = colors[col];
+				gc.setColor(color);
 			}else {
 				System.out.println("Cette couleur n'existe pas ! ");
 			}
 			break;
-			// A FAIRE : implémenter l'interprétation des noeuds nCall et nColor
 		}
 	}
 
+
 	/**
-	 * Bouge la tortue vers l'avant par  'steps'
-	 * @param length le nombre de steps
+	 * Avance la turtle vers l'avant l'unité de longueur 'length'
+	 * @param length 
 	 */
 	void forward(double length) {
 		double destX = x + Math.sin(direction*Math.PI*2/360) * length;
@@ -183,7 +186,7 @@ public class Interpreter {
 		x = destX;
 		y = destY;
 	}
-	
+
 	/**
 	 * Cette méthode permet d'afficher l'AST
 	 * @param n
@@ -198,38 +201,8 @@ public class Interpreter {
 		System.out.println(s);
 		Iterator<Node> children = n.getChildren();
 		while(children.hasNext()) {
-			printAst(children.next(), profondeur + 1);
+			printAst(children.next(), profondeur +1);
 		}
 	}
 
-	/**
-	 * Exemple d'un AST
-	 * @return Node
-	 
-	static Node exampleAst() {
-		Node root = new Node(NodeClass.nBlock);
-
-		root.appendNode(new Node(NodeClass.nRight, "180"));
-
-		Node n1 = new Node(NodeClass.nBlock);
-		n1.appendNode(new Node(NodeClass.nForward, "5"));
-		n1.appendNode(new Node(NodeClass.nRight, "90"));
-		Node n11 = new Node(NodeClass.nRepeat, "2");
-		n11.appendNode(n1);
-		root.appendNode(n11);
-
-		root.appendNode(new Node(NodeClass.nForward, "10"));
-
-		root.appendNode(new Node(NodeClass.nRight, "90"));
-
-		Node n2 = new Node(NodeClass.nBlock);
-		n2.appendNode(new Node(NodeClass.nLeft, "90"));
-		n2.appendNode(new Node(NodeClass.nForward, "20"));
-		Node n21 = new Node(NodeClass.nRepeat, "3");
-		n21.appendNode(n2);
-		root.appendNode(n21);
-
-		return root;
-
-	}*/
 }

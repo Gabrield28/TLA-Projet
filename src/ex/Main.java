@@ -99,22 +99,24 @@ public class Main {
             "]\n";
     */
     final String example =
-            "color 1\n" +
-            "forward 20\n" +
-            "right 90\n" +
-            "forward 20\n" +
-            "color 5\n" +
-            "left 90\n" +
-            "forward 20\n" +
-            "right 90\n" +
-            "forward 20\n" +
-            "color 11\n" +
-            "forward 20\n" +
-            "color 8\n" +
-            "repeat 4 [\n" +
-            "  forward 15\n" +
-            "  left 90\n" +
-            "]\n";
+            "procedure rosace  [\r\n" + 
+            "repeat 30[\r\n" + 
+            "   left 120\r\n" + 
+            "   color 5\r\n" + 
+            "   forward 10\r\n" + 
+            "   right 10\r\n" + 
+            "   color 1\r\n" + 
+            "   forward 15\r\n" + 
+            " ]\r\n" + 
+            "]\r\n" + 
+            "\r\n" + 
+            "repeat 25[\r\n" + 
+            "  left 90\r\n" + 
+            "  repeat 100[\r\n" + 
+            "   call rosace\r\n" + 
+            "   right 90\r\n" + 
+            "   ]\r\n" + 
+            "]\r\n";
     
     BufferedImage image;
 
@@ -164,7 +166,7 @@ public class Main {
         // bottomPanel
 
         JPanel bottomPanel = new JPanel(new GridBagLayout());
-        JButton btnRun = new JButton("lancer l'analyse");
+        JButton btnRun = new JButton("Lancer l'analyse");
         btnRun.setFont(new Font(fontName, Font.PLAIN, fontSize));
 
         bottomPanel.add(btnRun);

@@ -1,8 +1,10 @@
-package ex;
+package analyseSyntaxique;
 
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+import analyseLexicale.Token;
+
 
 public class Node {
     private List<Node> children = new ArrayList<Node>();
@@ -67,7 +69,7 @@ public class Node {
      * 
      * @return
      */
-    Iterator<Node> getChildren() {
+    public Iterator<Node> getChildren() {
         return this.children.iterator();
     }
 

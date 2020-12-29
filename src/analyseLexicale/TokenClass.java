@@ -1,4 +1,4 @@
-package ex;
+package analyseLexicale;
 
 public enum TokenClass {
 	

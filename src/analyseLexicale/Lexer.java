@@ -1,4 +1,4 @@
-package ex;
+package analyseLexicale;
 
 import java.util.ArrayList;
 /*
@@ -74,7 +74,7 @@ public class Lexer {
 				if (e == 101) {
 					System.out.println("Accepte [");
 					Tokens.add(new Token(TokenClass.leftHook, "["));
-					//sr.goBack();
+					
 				} else if (e == 102) {
 					System.out.println("Accepte ]");
 					Tokens.add(new Token(TokenClass.rightHook, "]"));
